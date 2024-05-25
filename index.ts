@@ -1,4 +1,4 @@
-import { Printer, Image } from "@node-escpos/core";
+import { Printer, Image, BitmapDensity } from "@node-escpos/core";
 import USB from "@node-escpos/usb-adapter";
 
 
@@ -21,14 +21,7 @@ import USB from "@node-escpos/usb-adapter";
     console.log("Device opened successfully.");
     const printer = new Printer(device, { encoding: "GB18030" });
 
-    printer.lineSpace = (n?: number | null) => {
-      printer.buffer.write("\x1B\x33");
-      printer.buffer.writeUInt8(24);
-      return printer;
-    };
-
-    await printer
-      .image(image, "s8");
+    await imageWithLineSpacing(printer, image, "s8");
 
     printer
       .feed()
@@ -40,4 +33,17 @@ import USB from "@node-escpos/usb-adapter";
 
 })();
 
+async function imageWithLineSpacing(printer: Printer<[]>, image: Image, density?: BitmapDensity | undefined) {
+  const defaultLineSpace = printer.lineSpace;
+  const lineSpace24 = (n?: number | null) => {
+    printer.buffer.write("\x1B\x33");
+    printer.buffer.writeUInt8(24);
+    return printer;
+  }
+
+  printer.lineSpace = lineSpace24;
+  await printer.image(image, density);
+
+  printer.lineSpace = defaultLineSpace;
+}
 
