@@ -1,6 +1,7 @@
 import { Printer, Image } from "@node-escpos/core";
 import USB from "@node-escpos/usb-adapter";
 
+
 (async () => {
 
   console.log("It's printing time!");
@@ -18,11 +19,15 @@ import USB from "@node-escpos/usb-adapter";
     }
 
     console.log("Device opened successfully.");
-
     const printer = new Printer(device, { encoding: "GB18030" });
 
+    printer.lineSpace = (n?: number | null) => {
+      printer.buffer.write("\x1B\x33");
+      printer.buffer.writeUInt8(24);
+      return printer;
+    };
+
     await printer
-      .lineSpace(24)
       .image(image, "s8");
 
     printer
@@ -34,4 +39,5 @@ import USB from "@node-escpos/usb-adapter";
   device.close();
 
 })();
+
 
