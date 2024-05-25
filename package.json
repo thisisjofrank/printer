@@ -1,0 +1,27 @@
+{
+  "name": "printer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx ./index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thisisjofrank/printer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thisisjofrank/printer/issues"
+  },
+  "homepage": "https://github.com/thisisjofrank/printer#readme",
+  "devDependencies": {
+    "tsx": "^4.11.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@node-escpos/core": "^0.6.0",
+    "@node-escpos/usb-adapter": "^0.3.1"
+  }
+}
