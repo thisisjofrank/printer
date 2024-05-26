@@ -10,8 +10,12 @@ You'll need to install the dependencies first:
 npm install
 ```
 
-Then compile and run the program with:
+Then compile and run the two programs at the same time in two terminals:
 
 ```bash
-npm run start
+npm run mastodot
+```
+
+```bash
+npm run mastoprint
 ```
