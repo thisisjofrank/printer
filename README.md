@@ -1,6 +1,6 @@
-# printer
+# Mastodot - Mastodon on a Dot Matrix Printer
 
-Printer example.
+This is being made as an installation for [Electromagnetic Field Festival](https://emfcamp.org)
 
 ## Usage
 
