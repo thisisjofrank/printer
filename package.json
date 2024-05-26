@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsx ./index.ts"
+    "start": "tsx ./index.ts",
+    "mastodot": "tsx ./mastodot.ts",
+    "mastoprint": "tsx ./mastoprint.ts"
   },
   "repository": {
     "type": "git",
