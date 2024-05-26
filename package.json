@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thisisjofrank/printer.git"
+    "url": "git+https://github.com/MattGrayYes/MastoDot.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/thisisjofrank/printer/issues"
+    "url": "https://github.com/MattGrayYes/MastoDot/issues"
   },
-  "homepage": "https://github.com/thisisjofrank/printer#readme",
+  "homepage": "https://github.com/MattGrayYes/MastoDot#readme",
   "devDependencies": {
     "tsx": "^4.11.0",
     "typescript": "^5.4.5"
