@@ -59,7 +59,8 @@ if (!fs.existsSync('out/')) {
                     
                     if(filetype == "txt") {
                         // print the string
-                        if(false) { // IF ITS SUCCESSFULLY PRINTED THE STRING
+                        console.log("TEXT", file_contents)
+                        if(true) { // IF ITS SUCCESSFULLY PRINTED THE STRING
                             console.log('moving: out/'+file+' to done/'+file)
                             fs.renameSync('out/'+file, 'done/'+file);
                         }
@@ -82,6 +83,16 @@ if (!fs.existsSync('out/')) {
                                 console.log(item.description)
                             })
                         }
+
+                        if(toot.poll == true)
+                            console.log("Toot contains a poll.")
+
+                        if(true) { // IF ITS SUCCESSFULLY PRINTED THE TOOT
+                            console.log('moving: out/'+file+' to done/'+file)
+                            fs.renameSync('out/'+file, 'done/'+file);
+                        }
+                        else
+                            console.error('not printed. not moving.')
                     }
                     else
                         console.error("I have no idea what to do with this file, it's not txt or json",file)

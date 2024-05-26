@@ -74,7 +74,7 @@ function disp(toot){
         })
     }
     //console.log(toot.account.display_name + " (" + toot.account.acct + ")\n" + convert(toot.content, convert_options) + "\n"+atts+"\n\n")
-    print_text(toot.account.display_name + " (" + toot.account.acct + ")\n" + toot.content + "\n"+atts+"\n\n")
+    console.log(toot.account.display_name + " (" + toot.account.acct + ")\n" + toot.content + "\n"+atts+"\n\n")
     print_toot(toot)
 }
 
