@@ -1,6 +1,8 @@
 import * as fs  from 'node:fs';
 import { Printer, Image, BitmapDensity } from "@node-escpos/core";
 import USB from "@node-escpos/usb-adapter";
+import sharp from 'sharp';
+import fetch from 'node-fetch'
 
 if (!fs.existsSync('done/')) {
     console.error("🚨 no done folder.")
@@ -106,7 +108,6 @@ if (!fs.existsSync('out/')) {
                         console.log(toot.account.display_name)
                         console.log(toot.account.acct)
                         console.log(toot.account.avatar)
-                        console.log(toot.created_at)
                         console.log(toot.content)
 
                         printer.initialise()
@@ -130,27 +131,40 @@ if (!fs.existsSync('out/')) {
                             .feed()
 
                         if(toot.media_attachments.length >= 1) {
-                            toot.media_attachments.forEach( async (item) => {
-                                console.log(item.type)
+                            await toot.media_attachments.forEach( async (item) => {
+                                console.log("Attachment: "+item.type)
                                 console.log(item.preview_url)
                                 console.log(item.description)
-                                if(item.type == "image")
+                                if(item.preview_url.length >0)
                                 {
-                                    const image = await Image.load(item.preview_url);
+                                    console.log("Attempting to print preview image")
+                                    const img_fetched = await fetch(item.preview_url)
+                                    const img_buffered = await img_fetched.arrayBuffer()
+                                    
+                                    img_converted = await sharp(img_buffered)
+                                                        .resize(150)
+                                                        .toFormat("png")
+                                                        .toFile("tmp/image.png")
+                                                        
+                                    const image = await Image.load("tmp/image.png");
                                     console.log("Image loaded, size:", image.size);
                                     
-                                    await imageWithLineSpacing(printer, image, "D24");
+                                    await imageWithLineSpacing(printer, image, "s8");
                                     
-                                    printer.feed()
+                                    await printer.flush()
                                 }
                                 else
                                     printer.pureText("Attachment: "+item.type+" ")
                                 
-                                printer
-                                    .pureText(styles.very_condensed)
-                                    .text(item.description)
-                                    .pureText(styles.condensed_cancel)
-                                    .flush()
+                                printer.initialise()
+                                if(item.description != null)
+                                {
+                                    printer
+                                        .pureText(styles.very_condensed)
+                                        .text(item.description)
+                                        .pureText(styles.condensed_cancel)
+                                        .flush()
+                                }
                             })
                         }
 
