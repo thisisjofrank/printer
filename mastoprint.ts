@@ -3,6 +3,11 @@ import { Printer, Image, BitmapDensity } from "@node-escpos/core";
 import USB from "@node-escpos/usb-adapter";
 import sharp from 'sharp';
 import fetch from 'node-fetch'
+import { convert } from "html-to-text";
+const convert_options = {
+    wordwrap: false, //130
+    selectors: [ { selector: 'a', options: { ignoreHref: true } } ]
+}
 
 if (!fs.existsSync('done/')) {
     console.error("🚨 no done folder.")
@@ -68,10 +73,9 @@ if (!fs.existsSync('out/')) {
             filenames.forEach(async file => 
             { 
                 
-                console.log("\n\n📄 "+file);
+                console.log("\n\n📄 New File:"+file);
 
                 var filetype = file.split(".").pop();
-                console.log("filetype:", filetype)
         
                 try {
                     var filestats = fs.statSync('out/'+file);
@@ -88,6 +92,7 @@ if (!fs.existsSync('out/')) {
                 
                 // if the file's been sat there for 10s
                 if(now > filetime) {
+                    console.log("file is new enough to process")
                     var file_contents = fs.readFileSync('out/'+file, 'utf8');
                     
                     if(filetype == "txt") {
@@ -103,13 +108,14 @@ if (!fs.existsSync('out/')) {
                             console.error('not printed. not moving.')
                     }
                     else if (filetype == "json") {
+                        console.log("got a json file: ")
                         var toot = JSON.parse(file_contents)
                         
-                        console.log(toot.account.display_name)
-                        console.log(toot.account.acct)
-                        console.log(toot.account.avatar)
-                        console.log(toot.content)
-
+                        console.log(toot.account.display_name, toot.account.acct)
+                        //console.log(toot.account.avatar)
+                        console.log(convert(toot.content, convert_options))
+                        
+                        console.log("\n\n🖨️ printing text portion")
                         printer.initialise()
                         printer
                             .lineSpace(48)
@@ -127,17 +133,22 @@ if (!fs.existsSync('out/')) {
                             .lineSpace()
                             .drawLine()
                             .pureText(styles.proportional)
-                                .text(splitLines(toot.content,83))
+                                .text(splitLines(convert(toot.content, convert_options), 83))
                             .feed()
+                            .flush()
 
+                        console.log("Media Attachments: "+toot.media_attachments.length)
+                        var attachment = 0;
                         if(toot.media_attachments.length >= 1) {
-                            await toot.media_attachments.forEach( async (item) => {
-                                console.log("Attachment: "+item.type)
-                                console.log(item.preview_url)
-                                console.log(item.description)
+                            toot.media_attachments.forEach( async (item) => {
+                                attachment++
+                                console.log("\nNew Attachment "+attachment+": "+item.type)
+                                //console.log(item.preview_url)
+                                //console.log(item.description)
+                                
                                 if(item.preview_url.length >0)
                                 {
-                                    console.log("Attempting to print preview image")
+                                    console.log("Got Preview URL for att "+attachment)
                                     const img_fetched = await fetch(item.preview_url)
                                     const img_buffered = await img_fetched.arrayBuffer()
                                     
@@ -147,29 +158,36 @@ if (!fs.existsSync('out/')) {
                                                         .toFile("tmp/image.png")
                                                         
                                     const image = await Image.load("tmp/image.png");
-                                    console.log("Image loaded, size:", image.size);
+                                    console.log("Image loaded for att "+attachment+", size:", image.size);
                                     
+                                    console.log("attempting to print image for att "+attachment)
                                     await imageWithLineSpacing(printer, image, "s8");
-                                    
-                                    await printer.flush()
+                                    printer.flush()
                                 }
                                 else
-                                    printer.pureText("Attachment: "+item.type+" ")
+                                    printer.pureText("Attachment "+attachment+": "+item.type+" ")
                                 
-                                printer.initialise()
+                                console.log("checking description for att "+attachment+" exists: "+item.description)
                                 if(item.description != null)
                                 {
+                                    console.log("printing description for attachment "+attachment+".")
+                                    printer.initialise()
                                     printer
                                         .pureText(styles.very_condensed)
                                         .text(item.description)
                                         .pureText(styles.condensed_cancel)
                                         .flush()
                                 }
+                                printer.initialise()
+                                
+                                console.log("finished processing attachment "+attachment)
                             })
                         }
 
                         if(toot.poll == true)
                             printer.text("Toot contains a poll.")
+                            
+                        printer.text(toot.created_at).feed()
 
                         if(await printer.flush()) { // IF ITS SUCCESSFULLY PRINTED THE TOOT
                             console.log('moving: out/'+file+' to done/'+file)
